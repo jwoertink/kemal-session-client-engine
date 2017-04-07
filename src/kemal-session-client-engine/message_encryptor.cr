@@ -12,7 +12,7 @@ module Kemal
       end
 
       def verifier
-        MessageVerifier.new(@sign_secret, digest: "SHA1")
+        MessageVerifier.new(@sign_secret)
       end
 
       def cipher
