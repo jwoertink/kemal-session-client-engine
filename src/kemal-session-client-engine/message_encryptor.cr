@@ -24,7 +24,7 @@ module Kemal
         cipher.key = String.new(@secret)
         iv = String.new(cipher.random_iv)
         encrypted_data = String.new(cipher.update(value))
-        encrypted_data += String.new(cipher.finalize)
+        encrypted_data += String.new(cipher.final)
 
         "#{Base64.strict_encode(encrypted_data)}--#{Base64.strict_encode(iv)}"
       end
