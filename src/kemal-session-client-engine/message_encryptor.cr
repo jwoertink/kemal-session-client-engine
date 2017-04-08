@@ -12,7 +12,7 @@ module Kemal
       end
 
       def decrypt_and_verify(value : String)
-        _decrypt(verifier.verify(value))
+        _decrypt(verifier.verify(value).as(String))
       end
 
       def verifier
