@@ -9,7 +9,7 @@ module Kemal
         "#{data}--#{generate_digest(data)}"
       end
 
-      def valid_message?(message : String)
+      def valid_message?(signed_message : String)
         data, digest = signed_message.split("--")
         data && digest && compare(digest, generate_digest(data))
       end
@@ -17,7 +17,8 @@ module Kemal
       def verify(signed_message : String)
         if valid_message?(signed_message)
           data = signed_message.split("--")[0]
-          JSON.parse(Base64.decode(data))
+          decoded = String.new(Base64.decode(data))
+          JSON.parse(decoded)
         end
       end
 
