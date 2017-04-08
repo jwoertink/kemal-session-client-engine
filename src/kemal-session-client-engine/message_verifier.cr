@@ -14,7 +14,7 @@ module Kemal
         data && digest && compare(digest, generate_digest(data))
       end
 
-      def verifier(signed_message : String)
+      def verify(signed_message : String)
         if valid_message?(signed_message)
           data = signed_message.split("--")[0]
           JSON.parse(Base64.decode(data))
