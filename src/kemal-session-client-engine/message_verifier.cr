@@ -9,6 +9,30 @@ module Kemal
         "#{data}--#{generate_digest(data)}"
       end
 
+      def valid_message?(message : String)
+        data, digest = signed_message.split("--")
+        data && digest && compare(digest, generate_digest(data))
+      end
+
+      def verifier(signed_message : String)
+        if valid_message?(signed_message)
+          data = signed_message.split("--")[0]
+          JSON.parse(Base64.decode(data))
+        end
+      end
+
+      def compare(a : String, b : String)
+        return false unless a.bytesize == b.bytesize
+        l = a.bytes
+        res = 0
+        begin
+          b.each_byte { |byte| res |= byte ^ l.shift }
+        rescue IndexError
+          res = 1
+        end
+        res == 0
+      end
+
       private def generate_digest(data)
         OpenSSL::HMAC.hexdigest(@digest, @secret, data)
       end

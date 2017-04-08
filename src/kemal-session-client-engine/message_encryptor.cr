@@ -11,6 +11,10 @@ module Kemal
         verifier.generate(_encrypt(value))
       end
 
+      def decrypt_and_verify(value : String)
+        _decrypt(verifier.verify(value))
+      end
+
       def verifier
         MessageVerifier.new(String.new(@sign_secret))
       end
@@ -27,6 +31,19 @@ module Kemal
         encrypted_data += String.new(cipher.final)
 
         "#{Base64.strict_encode(encrypted_data)}--#{Base64.strict_encode(iv)}"
+      end
+
+      private def _decrypt(value : String)
+        encrypted_data, iv, auth_tag = value.split("--").map do |v|
+          Base64.decode(v)
+        end
+
+        cipher.decrypt
+        cipher.key = String.new(@secret)
+        cipher.iv = iv
+        decrypted_data = String.new(cipher.update(encrypted_data))
+        decrypted_data += String.new(cipher.final)
+        JSON.parse(decrypted_data)
       end
     end
   end
