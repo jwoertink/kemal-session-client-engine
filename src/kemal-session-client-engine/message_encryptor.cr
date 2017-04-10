@@ -34,8 +34,8 @@ module Kemal
       end
 
       private def _decrypt(value : String)
-        encrypted_data, iv, auth_tag = value.split("--").map do |v|
-          Base64.decode(v)
+        encrypted_data, iv = value.split("--").map do |v|
+          String.new(Base64.decode(v))
         end
 
         cipher.decrypt
@@ -43,7 +43,7 @@ module Kemal
         cipher.iv = iv
         decrypted_data = String.new(cipher.update(encrypted_data))
         decrypted_data += String.new(cipher.final)
-        JSON.parse(decrypted_data)
+        decrypted_data
       end
     end
   end
