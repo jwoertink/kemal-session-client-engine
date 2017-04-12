@@ -25,24 +25,28 @@ module Kemal
 
       private def _encrypt(value : String)
         cipher.encrypt
-        cipher.key = String.new(@secret)
-        iv = String.new(cipher.random_iv)
-        encrypted_data = String.new(cipher.update(value))
-        encrypted_data += String.new(cipher.final)
+        cipher.key = @secret
+        iv = cipher.random_iv
+        encrypted_update = cipher.update(value)
+        encrypted_final  = cipher.final
+        encrypted_data = encrypted_update ? String.new(encrypted_update) : ""
+        encrypted_data += encrypted_final ? String.new(encrypted_final) : ""
 
         "#{Base64.strict_encode(encrypted_data)}--#{Base64.strict_encode(iv)}"
       end
 
       private def _decrypt(value : String)
         encrypted_data, iv = value.split("--").map do |v|
-          String.new(Base64.decode(v))
+          Base64.decode(v)
         end
 
         cipher.decrypt
-        cipher.key = String.new(@secret)
+        cipher.key = @secret
         cipher.iv = iv
-        decrypted_data = String.new(cipher.update(encrypted_data))
-        decrypted_data += String.new(cipher.final)
+        decrypted_update = cipher.update(encrypted_data)
+        decrypted_final  = cipher.final
+        decrypted_data = decrypted_update ? String.new(decrypted_update) : ""
+        decrypted_data += decrypted_final ? String.new(decrypted_final) : ""
         decrypted_data
       end
     end
