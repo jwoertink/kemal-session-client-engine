@@ -12,7 +12,8 @@ module Kemal
       end
 
       def decrypt_and_verify(value : String)
-        _decrypt(verifier.verify(value).as(String))
+        verified = verifier.verify(value).as(String)
+        _decrypt(verified)
       end
 
       def verifier

@@ -10,4 +10,20 @@ describe Kemal::ClientEngine::MessageVerifier do
       result.should eq value
     end
   end
+
+  describe "valid_message?" do
+    it "returns false for an invalid message" do
+      verifier = Kemal::ClientEngine::MessageVerifier.new("s3Krit")
+      verifier.valid_message?("--").should eq false
+      verifier.valid_message?("").should eq false
+      verifier.valid_message?("abc").should eq false
+    end
+  end
+
+  describe "compare" do
+    it "returns true when both strings are similar" do
+      verifier = Kemal::ClientEngine::MessageVerifier.new("s3Krit")
+      verifier.compare("test1", "test1").should eq true
+    end
+  end
 end

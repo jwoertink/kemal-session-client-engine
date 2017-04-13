@@ -1,6 +1,8 @@
 module Kemal
   class ClientEngine
     class MessageVerifier
+      class InvalidMessage < Exception; end
+
       def initialize(@secret : String, @digest : Symbol = :sha1)
       end
 
@@ -11,7 +13,10 @@ module Kemal
       end
 
       def valid_message?(signed_message : String)
-        data, digest = signed_message.split("--")
+        parts = signed_message.split("--")
+        data = parts[0]
+        digest = parts[1]?
+        return false if data.blank? || digest.nil?
         data && digest && compare(digest, generate_digest(data))
       end
 
@@ -20,6 +25,8 @@ module Kemal
           data = signed_message.split("--")[0]
           decoded = String.new(Base64.decode(data))
           JSON.parse(decoded)
+        else
+          raise InvalidMessage.new("Unable to verify message")
         end
       end
 
