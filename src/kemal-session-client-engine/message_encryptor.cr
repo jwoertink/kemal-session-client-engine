@@ -36,9 +36,7 @@ module Kemal
       end
 
       private def _decrypt(value : String)
-        encrypted_data, iv = value.split("--").map do |v|
-          Base64.decode(v)
-        end
+        encrypted_data, iv = value.split("--").map { |v| Base64.decode(v) }
 
         cipher.decrypt
         cipher.key = @secret
