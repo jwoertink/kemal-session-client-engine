@@ -19,11 +19,12 @@ module Kemal
         MessageVerifier.new(String.new(@sign_secret))
       end
 
-      def cipher
+      def new_cipher
         OpenSSL::Cipher.new(DEFAULT_CIPHER)
       end
 
       private def _encrypt(value : String)
+        cipher = new_cipher
         cipher.encrypt
         cipher.key = @secret
         iv = cipher.random_iv
@@ -36,6 +37,7 @@ module Kemal
       end
 
       private def _decrypt(value : String)
+        cipher = new_cipher
         encrypted_data, iv = value.split("--").map { |v| Base64.decode(v) }
 
         cipher.decrypt
