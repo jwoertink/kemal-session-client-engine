@@ -4,6 +4,7 @@ module Kemal
       def initialize(@secret : String, @digest : Symbol = :sha1)
       end
 
+      # TODO: Add configuration for serializer
       def generate(value)
         data = Base64.strict_encode(value.to_json)
         "#{data}--#{generate_digest(data)}"
@@ -18,7 +19,7 @@ module Kemal
         if valid_message?(signed_message)
           data = signed_message.split("--")[0]
           decoded = String.new(Base64.decode(data))
-          decoded
+          JSON.parse(decoded)
         end
       end
 
