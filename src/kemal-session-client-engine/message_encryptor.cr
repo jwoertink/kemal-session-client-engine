@@ -48,7 +48,7 @@ module Kemal
         decrypted_final  = cipher.final
         decrypted_data = decrypted_update ? String.new(decrypted_update) : ""
         decrypted_data += decrypted_final ? String.new(decrypted_final) : ""
-        decrypted_data
+        JSON.parse(decrypted_data)
       end
     end
   end

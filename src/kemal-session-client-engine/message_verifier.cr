@@ -24,7 +24,7 @@ module Kemal
         if valid_message?(signed_message)
           data = signed_message.split("--")[0]
           decoded = String.new(Base64.decode(data))
-          JSON.parse(decoded)
+          decoded
         else
           raise InvalidMessage.new("Unable to verify message")
         end
