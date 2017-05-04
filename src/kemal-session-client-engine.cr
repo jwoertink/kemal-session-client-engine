@@ -10,19 +10,61 @@ require "base64"
 require "./kemal-session-client-engine/*"
 
 class Session
+
+  # Override original to create the session differently
+  def initialize(ctx : HTTP::Server::Context)
+    id = ctx.request.cookies[Session.config.cookie_name]?.try &.value
+    valid = false
+    if id
+      begin
+        Session.decode(id)
+        valid = true
+      rescue
+      end
+    end
+
+    if id.nil? || !valid
+      id = SecureRandom.hex
+      Session.config.engine.create_session(id)
+    end
+
+    ctx.response.cookies << Session.create_cookie(id)
+    @id = id
+    @context = ctx
+  end
+
+  # Decode the session token
+  def self.decode(token : String)
+    Session.config.engine.decode(token)
+  end
+
+  # Encode the session id
+  def self.encode(id : String)
+
+  end
+
   class ClientEngine < Engine
     class StorageInstance
     end
 
     def initialize(@secret_key_base : String)
+      key_generator = Kemal::ClientEngine::KeyGenerator.new(@secret_key_base)
+      secret = key_generator.generate_key("encrypted cookie")
+      sign_secret = key_generator.generate_key("signed encrypted cookie")
+      @encryptor = Kemal::ClientEngine::MessageEncryptor.new(secret, sign_secret)
     end
 
     def run_gc
       # Cookies should expire by the date
     end
+
+    def decode(token : String)
+      @encryptor.decrypt_and_verify(token)
+    end
     
     def create_session(session_id : String)
-
+      session = {"session_id" => session_id}.to_json
+      @encryptor.encrypt_and_sign(session)
     end
 
     def destroy_session(session_id : String)
